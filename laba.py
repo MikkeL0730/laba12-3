@@ -1,30 +1,26 @@
+#12. Вычислить сумму знакопеременного ряда (|х(2n-1)|)/(2n-1)!, где х-матрица ранга к (к и матрица задаются случайным образом),
+# n - номер слагаемого. Сумма считается вычисленной, если точность вычислений будет не меньше t знаков после запятой.
+# У алгоритма д.б. линейная сложность. Операция умножения –поэлементная. Знак первого слагаемого +.
 import numpy as np
 
-def compute_series_sum(x, k, t):
-    total = 0.0
-    sign = 1
-    prev_factorial = 1
-    factorial = 1
-    term = 0.0
+def calculate_series_sum(x, t):
+    # Инициализация переменных
+    term = x
+    series_sum = term
     n = 1
 
-    while True:
-        term = (np.abs(x) * sign) / factorial
-        total += term
-        sign = -sign
+    # Цикл для вычисления суммы
+    while np.all(np.abs(term) >= 0.1**t):
         n += 1
+        term = -x**2 / ((2*n)*(2*n-1)) @ term
+        series_sum += np.where(n % 2 == 0, term, -term)
 
-        prev_factorial = factorial
-        factorial *= (2 * n - 1) * (2 * n)
+    return np.sum(series_sum)  # Возвращаем сумму всех элементов ряда
 
-        if np.abs(term) < 0.1 ** t:
-            break
+# Пример использования
+k = 3  # Ранг матрицы
+x = np.random.uniform(-1, 1, size=(k, k))
+t = 6  # Точность вычислений (количество знаков после запятой)
 
-    return total
-
-k = 3
-x = np.random.uniform(-1, 1, size=(k, k)) # Генерация случайной матрицы размера k со значениями от -1 до 1
-t = 5  # Точность, количество знаков после запятой
-
-sum_result = compute_series_sum(x, k, t)
-print("Сумма знакопеременного ряда:", sum_result)
+series_sum = calculate_series_sum(x, t)
+print("Сумма знакопеременного ряда:", series_sum)
